@@ -14,8 +14,6 @@ module ethernet_parser(
 );
 
     // Extract ethernet fields from first 2 beats of AXIS
-
-    
     always_ff @(posedge clk) begin
         if (!rst_n) begin
             eth_valid <= 1'b0;
