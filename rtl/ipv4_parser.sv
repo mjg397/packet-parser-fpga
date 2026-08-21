@@ -3,10 +3,11 @@ module ipv4_parser(
     input logic rst_n,
 
     input logic        beat_valid,
-    input logic [4:0]  beat_index,
+    input logic [7:0]  beat_index,
     input logic [63:0] data,
 
     input logic [15:0] eth_type,
+    input logic        eth_valid,
 
     output logic [3:0] ip_version,
     output logic [3:0] ip_ihl,
@@ -25,10 +26,10 @@ module ipv4_parser(
     logic ipv4_enable;
 
     always_comb begin
-        if (beat_valid && eth_type == 16'h0800)
-            ipv4_enable <= 1'b1;
+        if (beat_valid && eth_type == 16'h0800 && eth_valid)
+            ipv4_enable = 1'b1;
         else
-            ipv4_enable <= 1'b0;
+            ipv4_enable = 1'b0;
     end
 
     // IPv4 header byte offsets:
@@ -64,13 +65,16 @@ module ipv4_parser(
                         ip_protocol     <= data[63:56];
                     end
                     3 : begin
-                        ip_checksum <= data[15:0];
-                        ip_src_addr <= data[47:16];
-                        ip_dst_addr <= data[63:48];
+                        ip_checksum       <= data[15:0];
+                        ip_src_addr       <= data[47:16];
+                        ip_dst_addr[15:0] <= data[63:48];
                     end
                     4 : begin
-                        ip_dst_addr <= data[15:0];
-                        ipv4_valid   <= 1'b1;
+                        ip_dst_addr[31:16] <= data[15:0];
+                        ipv4_valid         <= 1'b1;
+                    end
+                    default : begin
+                        // No ethernet frames in later beats
                     end
                 endcase
             end
