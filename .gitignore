@@ -1,0 +1,7 @@
+.venv/
+sim/.venv/
+__pycache__/
+*.pyc
+sim_build/
+results.xml
+.DS_Store
